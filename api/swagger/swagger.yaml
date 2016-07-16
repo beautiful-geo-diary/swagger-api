@@ -1,0 +1,260 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Beauty API
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /swagger:
+    x-swagger-pipe: swagger_raw
+
+  /user:
+    x-swagger-router-controller: user
+    post:
+      description: creates a new user
+      # used as the method name of the controller
+      operationId: UserPost
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/UserPostRequest"
+      responses:
+        "201":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/UserPostResponse201"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /session:
+    x-swagger-router-controller: session
+    post:
+      description: creates a new session (or, login)
+      # used as the method name of the controller
+      operationId: SessionPost
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/SessionPostRequest"
+      responses:
+        "201":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/SessionPostResponse201"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /picture:
+    x-swagger-router-controller: picture
+    post:
+      description: creates a new picture (or, upload)
+      # used as the method name of the controller
+      operationId: PicturePost
+      parameters:
+        - name: title
+          in: formData
+          required: true
+          type: string
+        - name: file
+          in: formData
+          type: file
+          required: true
+        - name: x
+          in: formData
+          type: number
+          required: true
+        - name: y
+          in: formData
+          type: number
+          required: true
+        - name: userId
+          in: header
+          type: string
+          required: true
+      responses:
+        "201":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/PicturePostResponse201"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /picture/by-id/{id}:
+    x-swagger-router-controller: picture
+    get:
+      description: get a picture by it's ID
+      # used as the method name of the controller
+      operationId: PictureGetById
+      parameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/PictureGetResponse200"
+        "404":
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /picture/boxed:
+    x-swagger-router-controller: picture
+    get:
+      description: get a list of pictures by coordinates
+      # used as the method name of the controller
+      operationId: PictureGetInBoundingBox
+      parameters:
+        - name: startDate
+          in: query
+          type: string
+          format: date-time
+          required: false
+        - name: endDate
+          in: query
+          type: string
+          format: date-time
+          required: false
+          
+        - name: x1
+          in: query
+          type: number
+          required: true
+        - name: y1
+          in: query
+          type: number
+          required: true
+        - name: x2
+          in: query
+          type: number
+          required: true
+        - name: y2
+          in: query
+          type: number
+          required: true
+        - name: x3
+          in: query
+          type: number
+          required: true
+        - name: y3
+          in: query
+          type: number
+          required: true
+        - name: x4
+          in: query
+          type: number
+          required: true
+        - name: y4
+          in: query
+          type: number
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/PicturePostResponse201"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+
+# complex objects have schema definitions
+definitions:
+  UserPostRequest:
+    required:
+    - password
+    - email
+    properties:
+      password:
+        type: string
+      email:
+        type: string
+        
+  UserPostResponse201:
+    required:
+    - id
+    - email
+    properties:
+      id:
+        type: string
+      email:
+        type: string
+
+  SessionPostRequest:
+    required:
+    - email
+    - password
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+        
+  SessionPostResponse201:
+    required:
+    - id
+    properties:
+      id:
+        type: string
+        
+  PicturePostResponse201:
+    required:
+    - id
+    - path
+    properties:
+      id:
+        type: string
+      path:
+        type: string
+
+  PictureGetResponse200:
+    required:
+    - id
+    - path
+    properties:
+      id:
+        type: string
+      path:
+        type: string
+
+
+  ErrorResponse:
+    properties:
+      message:
+        type: string
