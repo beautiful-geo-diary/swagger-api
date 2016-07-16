@@ -52,8 +52,17 @@ function getById(req, res) {
 	}
 
 	if( response.length > 0 ) {
+		/*
+		 *	if success: response must be an array of {"id":"xyz","path":"http://asdasdasd"}
+		 *	see: https://github.com/beautiful-geo-diary/swagger-api/blob/master/api/swagger/swagger.yaml#L127
+		 *	see: https://github.com/beautiful-geo-diary/swagger-api/blob/master/api/swagger/swagger.yaml#L246
+		 */
 		res.status(200).json(response);
 	} else {
+		/*
+		 *	if fail: response must be an Error
+		 *	see: https://github.com/beautiful-geo-diary/swagger-api/blob/master/api/swagger/swagger.yaml#L257
+		 */
 		res.status(404).json({"message":"picture not found"});
 	}
 }
